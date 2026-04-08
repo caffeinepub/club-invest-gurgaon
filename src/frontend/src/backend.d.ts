@@ -8,6 +8,7 @@ export interface None {
 }
 export type Option<T> = Some<T> | None;
 export interface PropertySubmission {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: PropertyCategory;
     projectName: string;
@@ -57,5 +58,6 @@ export enum TargetBuyer {
 }
 export interface backendInterface {
     getSubmissions(): Promise<Array<PropertySubmission>>;
+    setGoogleSheetsUrl(url: string): Promise<void>;
     submitProperty(submission: PropertySubmission): Promise<string>;
 }

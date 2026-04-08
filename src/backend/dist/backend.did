@@ -28,6 +28,7 @@ type PropertySubmission =
    location: text;
    locationAdvantages: text;
    negotiable: bool;
+   photoUrls: vec text;
    priceJustification: text;
    projectName: text;
    propertyAge: text;
@@ -53,5 +54,6 @@ type Furnishing =
  };
 service : {
   getSubmissions: () -> (vec PropertySubmission) query;
+  setGoogleSheetsUrl: (url: text) -> ();
   submitProperty: (submission: PropertySubmission) -> (text);
 }

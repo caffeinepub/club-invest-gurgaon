@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --font-display: "Playfair Display", Georgia, serif;
-    --font-body: "Playfair Display", Georgia, serif;
-    --font-mono: "Playfair Display", Georgia, serif;
+    --font-display: "Inter", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-mono: "Inter", monospace;
     --radius: 0.5rem;
 
     /* White base */
@@ -97,7 +97,7 @@
   }
 
   body {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     @apply bg-background text-foreground antialiased;
   }
 
@@ -107,7 +107,7 @@
   h4,
   h5,
   h6 {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
   }
 
   input,
@@ -119,13 +119,13 @@
   span,
   a,
   li {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
   }
 }
 
 @layer utilities {
-  .font-playfair {
-    font-family: "Playfair Display", Georgia, serif;
+  .font-inter {
+    font-family: "Inter", sans-serif;
   }
 
   .transition-smooth {
@@ -140,16 +140,16 @@
   }
 
   .btn-primary {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     @apply bg-primary text-primary-foreground px-6 py-3 rounded font-semibold transition-smooth hover:opacity-90;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     border: 1px solid oklch(0.74 0.13 75 / 0.5);
   }
 
   .btn-secondary {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     @apply bg-secondary text-secondary-foreground px-6 py-3 rounded font-semibold transition-smooth hover:opacity-90;
-    letter-spacing: 0.10em;
+    letter-spacing: 0.06em;
   }
 
   .section-divider {
@@ -176,17 +176,17 @@
   }
 
   .label-premium {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     @apply text-foreground font-semibold tracking-widest text-xs uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
   }
 
   .input-premium {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     @apply bg-white rounded px-4 py-2.5 text-foreground placeholder:text-muted-foreground transition-smooth;
     border: 1px solid oklch(0.74 0.13 75 / 0.55);
     box-shadow: 0 1px 4px oklch(0.74 0.13 75 / 0.06);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
   .input-premium:focus,
   .input-premium:focus-visible {
@@ -208,17 +208,17 @@
 
   /* Heading display style */
   .heading-display {
-    font-family: "Playfair Display", Georgia, serif;
-    font-weight: 900;
-    letter-spacing: -0.01em;
+    font-family: "Inter", sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     line-height: 1.1;
   }
 
   /* Elegant section title */
   .section-title {
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: "Inter", sans-serif;
     font-weight: 600;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.10em;
     text-transform: uppercase;
   }
 }

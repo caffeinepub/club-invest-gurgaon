@@ -19,6 +19,7 @@ export type PropertyCategory = { 'Commercial' : null } |
   { 'Villa' : null } |
   { 'Apartment' : null };
 export interface PropertySubmission {
+  'photoUrls' : Array<string>,
   'locationAdvantages' : string,
   'propertyCategory' : PropertyCategory,
   'projectName' : string,
@@ -52,6 +53,7 @@ export type TargetBuyer = { 'Investor' : null } |
   { 'EndUser' : null };
 export interface _SERVICE {
   'getSubmissions' : ActorMethod<[], Array<PropertySubmission>>,
+  'setGoogleSheetsUrl' : ActorMethod<[string], undefined>,
   'submitProperty' : ActorMethod<[PropertySubmission], string>,
 }
 export declare const idlService: IDL.ServiceClass;

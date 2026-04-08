@@ -31,6 +31,7 @@ export const Representation = IDL.Variant({
   'Owner' : IDL.Null,
 });
 export const PropertySubmission = IDL.Record({
+  'photoUrls' : IDL.Vec(IDL.Text),
   'locationAdvantages' : IDL.Text,
   'propertyCategory' : PropertyCategory,
   'projectName' : IDL.Text,
@@ -59,6 +60,7 @@ export const PropertySubmission = IDL.Record({
 
 export const idlService = IDL.Service({
   'getSubmissions' : IDL.Func([], [IDL.Vec(PropertySubmission)], ['query']),
+  'setGoogleSheetsUrl' : IDL.Func([IDL.Text], [], []),
   'submitProperty' : IDL.Func([PropertySubmission], [IDL.Text], []),
 });
 
@@ -88,6 +90,7 @@ export const idlFactory = ({ IDL }) => {
     'Owner' : IDL.Null,
   });
   const PropertySubmission = IDL.Record({
+    'photoUrls' : IDL.Vec(IDL.Text),
     'locationAdvantages' : IDL.Text,
     'propertyCategory' : PropertyCategory,
     'projectName' : IDL.Text,
@@ -116,6 +119,7 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     'getSubmissions' : IDL.Func([], [IDL.Vec(PropertySubmission)], ['query']),
+    'setGoogleSheetsUrl' : IDL.Func([IDL.Text], [], []),
     'submitProperty' : IDL.Func([PropertySubmission], [IDL.Text], []),
   });
 };

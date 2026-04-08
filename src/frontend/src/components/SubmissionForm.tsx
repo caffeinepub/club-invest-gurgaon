@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, ChevronRight, Gem } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, ChevronRight, Gem, ImagePlus, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -22,9 +22,13 @@ import {
   TargetBuyer,
   createActor,
 } from "../backend";
-import type { PropertyFormData } from "../types";
+import type { PropertyFormData, UploadedPhoto } from "../types";
 
-const PF = { fontFamily: "'Playfair Display', Georgia, serif" } as const;
+const PF = { fontFamily: "'Inter', sans-serif" } as const;
+
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif"];
+const MAX_FILE_SIZE_MB = 5;
+const MAX_PHOTOS = 3;
 
 // ── Section wrapper ──────────────────────────────────────────────────────────
 function FormSection({
@@ -114,6 +118,208 @@ function Field({
   );
 }
 
+// ── Photo Upload ─────────────────────────────────────────────────────────────
+function PhotoUploadSection({
+  photos,
+  onAdd,
+  onRemove,
+}: {
+  photos: UploadedPhoto[];
+  onAdd: (files: FileList) => void;
+  onRemove: (id: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const canAdd = photos.length < MAX_PHOTOS;
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (e.dataTransfer.files.length > 0) onAdd(e.dataTransfer.files);
+    },
+    [onAdd],
+  );
+
+  return (
+    <Field label="Property Photos (Optional — up to 3 images, 5 MB each)">
+      <div className="space-y-3">
+        {/* Dropzone */}
+        {canAdd && (
+          <button
+            type="button"
+            tabIndex={0}
+            aria-label="Upload property photos"
+            onClick={() => inputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            className="transition-smooth cursor-pointer w-full text-left"
+            style={{
+              border: "1.5px dashed oklch(0.74 0.13 75 / 0.65)",
+              borderRadius: "0.5rem",
+              padding: "1.25rem 1rem",
+              background: "oklch(0.975 0.010 305 / 0.5)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.5rem",
+              color: "oklch(0.50 0.05 305)",
+            }}
+            data-ocid="photo-upload-dropzone"
+          >
+            <ImagePlus
+              className="w-6 h-6"
+              style={{ color: "oklch(0.60 0.15 75)" }}
+            />
+            <p style={{ ...PF, fontSize: "12px", letterSpacing: "0.04em" }}>
+              Tap to select or drag &amp; drop — JPG, PNG or GIF
+            </p>
+            <p
+              style={{
+                ...PF,
+                fontSize: "11px",
+                color: "oklch(0.60 0.15 75)",
+              }}
+            >
+              Max {MAX_FILE_SIZE_MB} MB each · {MAX_PHOTOS - photos.length} slot
+              {MAX_PHOTOS - photos.length !== 1 ? "s" : ""} remaining
+            </p>
+          </button>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept={ACCEPTED_TYPES.join(",")}
+          multiple
+          className="sr-only"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0)
+              onAdd(e.target.files);
+            e.target.value = "";
+          }}
+          data-ocid="photo-upload-input"
+        />
+
+        {/* Thumbnails */}
+        {photos.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative rounded-lg overflow-hidden"
+                style={{
+                  border: "1px solid oklch(0.74 0.13 75 / 0.40)",
+                  background: "oklch(0.97 0.004 90)",
+                  aspectRatio: "1 / 1",
+                }}
+              >
+                {/* Thumbnail image */}
+                <img
+                  src={photo.previewUrl}
+                  alt={photo.file.name}
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Overlay: progress or error */}
+                {photo.status === "uploading" && (
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-1"
+                    style={{ background: "oklch(0.20 0.02 305 / 0.65)" }}
+                  >
+                    <p
+                      style={{
+                        ...PF,
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        color: "#fff",
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      {photo.progress}%
+                    </p>
+                    <div
+                      style={{
+                        width: "60%",
+                        height: "4px",
+                        borderRadius: "2px",
+                        background: "oklch(0.74 0.13 75 / 0.35)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${photo.progress}%`,
+                          background: "oklch(0.74 0.13 75)",
+                          borderRadius: "2px",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {photo.status === "error" && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: "oklch(0.55 0.22 25 / 0.75)" }}
+                  >
+                    <p
+                      style={{
+                        ...PF,
+                        fontSize: "10px",
+                        fontWeight: 600,
+                        color: "#fff",
+                        padding: "0 4px",
+                        textAlign: "center",
+                      }}
+                    >
+                      Upload failed
+                    </p>
+                  </div>
+                )}
+
+                {/* File name below */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
+                  style={{
+                    background: "oklch(0.10 0.02 305 / 0.70)",
+                    backdropFilter: "blur(2px)",
+                  }}
+                >
+                  <p
+                    className="truncate"
+                    style={{
+                      ...PF,
+                      fontSize: "9px",
+                      color: "#fff",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    {photo.file.name}
+                  </p>
+                </div>
+
+                {/* Remove button */}
+                <button
+                  type="button"
+                  aria-label={`Remove ${photo.file.name}`}
+                  onClick={() => onRemove(photo.id)}
+                  className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center transition-smooth hover:opacity-80"
+                  style={{
+                    background: "oklch(0.35 0.30 305)",
+                    border: "1px solid oklch(0.74 0.13 75 / 0.50)",
+                  }}
+                  data-ocid={`btn-remove-photo-${photo.id}`}
+                >
+                  <X className="w-3 h-3 text-white" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Field>
+  );
+}
+
 // ── Success State ────────────────────────────────────────────────────────────
 function SuccessState() {
   return (
@@ -189,10 +395,32 @@ function SuccessState() {
   );
 }
 
+// ── Simulated upload: generates fake progress then resolves ───────────────
+function simulateUpload(
+  photo: UploadedPhoto,
+  onProgress: (id: string, progress: number) => void,
+  onDone: (id: string, url: string) => void,
+): void {
+  let current = 0;
+  const tick = () => {
+    current += Math.floor(Math.random() * 18) + 8;
+    if (current >= 100) {
+      onProgress(photo.id, 100);
+      // Use the object URL as the "uploaded" URL (local only)
+      setTimeout(() => onDone(photo.id, photo.previewUrl), 200);
+    } else {
+      onProgress(photo.id, current);
+      setTimeout(tick, 150 + Math.random() * 100);
+    }
+  };
+  setTimeout(tick, 120);
+}
+
 // ── Main Form ────────────────────────────────────────────────────────────────
 export default function SubmissionForm() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
 
   const { register, handleSubmit, setValue, watch } = useForm<PropertyFormData>(
     {
@@ -211,7 +439,77 @@ export default function SubmissionForm() {
   const authorized = watch("authorized");
   const negotiable = watch("negotiable");
 
+  const anyUploading = photos.some((p) => p.status === "uploading");
+
+  const handleAddPhotos = useCallback(
+    (files: FileList) => {
+      const remaining = MAX_PHOTOS - photos.length;
+      if (remaining <= 0) return;
+
+      const toAdd = Array.from(files).slice(0, remaining);
+      const validated: UploadedPhoto[] = [];
+
+      for (const file of toAdd) {
+        if (!ACCEPTED_TYPES.includes(file.type)) {
+          toast.error(
+            `${file.name}: Only JPG, PNG, or GIF files are accepted.`,
+          );
+          continue;
+        }
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+          toast.error(
+            `${file.name}: File exceeds ${MAX_FILE_SIZE_MB} MB limit.`,
+          );
+          continue;
+        }
+        validated.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          previewUrl: URL.createObjectURL(file),
+          progress: 0,
+          status: "uploading",
+        });
+      }
+
+      if (validated.length === 0) return;
+
+      setPhotos((prev) => [...prev, ...validated]);
+
+      for (const photo of validated) {
+        simulateUpload(
+          photo,
+          (id, progress) =>
+            setPhotos((prev) =>
+              prev.map((p) => (p.id === id ? { ...p, progress } : p)),
+            ),
+          (id, url) =>
+            setPhotos((prev) =>
+              prev.map((p) =>
+                p.id === id
+                  ? { ...p, status: "done", uploadedUrl: url, progress: 100 }
+                  : p,
+              ),
+            ),
+        );
+      }
+    },
+    [photos.length],
+  );
+
+  const handleRemovePhoto = useCallback((id: string) => {
+    setPhotos((prev) => {
+      const photo = prev.find((p) => p.id === id);
+      if (photo) URL.revokeObjectURL(photo.previewUrl);
+      return prev.filter((p) => p.id !== id);
+    });
+  }, []);
+
   const onSubmit = async (data: PropertyFormData) => {
+    if (anyUploading) {
+      toast.error("Please wait for all photo uploads to complete.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const representationMap: Record<string, Representation> = {
@@ -237,6 +535,15 @@ export default function SubmissionForm() {
         premium: TargetBuyer.PremiumBuyer,
       };
 
+      const photoUrls = photos
+        .filter((p) => p.status === "done" && p.uploadedUrl)
+        .map((p) => p.uploadedUrl as string);
+
+      const uniqueFeaturesWithPhotos =
+        photoUrls.length > 0
+          ? `${data.uniqueFeatures ?? ""}\n\nPhoto URLs:\n${photoUrls.join("\n")}`.trim()
+          : (data.uniqueFeatures ?? "");
+
       const submission = {
         clientName: data.clientName ?? "",
         contactNumber: data.contactNumber ?? "",
@@ -261,7 +568,8 @@ export default function SubmissionForm() {
         locationAdvantages: data.locationAdvantages ?? "",
         connectivity: data.connectivity ?? "",
         keyHighlights: data.keyHighlights ?? "",
-        uniqueFeatures: data.uniqueFeatures ?? "",
+        uniqueFeatures: uniqueFeaturesWithPhotos,
+        photoUrls: photoUrls,
         authorized: data.authorized,
         submittedAt: BigInt(Date.now()),
       };
@@ -383,9 +691,7 @@ export default function SubmissionForm() {
                 setValue(
                   "representation",
                   v as PropertyFormData["representation"],
-                  {
-                    shouldValidate: false,
-                  },
+                  { shouldValidate: false },
                 )
               }
             >
@@ -415,9 +721,7 @@ export default function SubmissionForm() {
                 setValue(
                   "propertyCategory",
                   v as PropertyFormData["propertyCategory"],
-                  {
-                    shouldValidate: false,
-                  },
+                  { shouldValidate: false },
                 )
               }
             >
@@ -530,6 +834,29 @@ export default function SubmissionForm() {
             />
           </Field>
         </div>
+
+        {/* Photo upload lives at the bottom of Specifications */}
+        <PhotoUploadSection
+          photos={photos}
+          onAdd={handleAddPhotos}
+          onRemove={handleRemovePhoto}
+        />
+
+        {anyUploading && (
+          <p
+            style={{
+              ...PF,
+              fontSize: "11px",
+              letterSpacing: "0.04em",
+              color: "oklch(0.60 0.15 75)",
+              fontStyle: "italic",
+            }}
+            data-ocid="upload-in-progress-notice"
+          >
+            ⏳ Upload in progress — submission is locked until all photos
+            finish.
+          </p>
+        )}
       </FormSection>
 
       {/* ── Section 4: Pricing ─────────────────────────────────────────── */}
@@ -768,7 +1095,12 @@ export default function SubmissionForm() {
         </p>
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || anyUploading}
+          title={
+            anyUploading
+              ? "Please wait for photo uploads to complete"
+              : undefined
+          }
           className="w-full sm:w-auto flex items-center gap-2 min-w-[240px] justify-center transition-smooth"
           style={{
             ...PF,
@@ -776,12 +1108,15 @@ export default function SubmissionForm() {
             fontSize: "13px",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            background: "oklch(0.35 0.30 305)",
+            background: anyUploading
+              ? "oklch(0.55 0.10 305)"
+              : "oklch(0.35 0.30 305)",
             color: "oklch(0.98 0.005 90)",
             border: "1.5px solid oklch(0.74 0.13 75 / 0.60)",
             boxShadow: "0 2px 14px oklch(0.35 0.30 305 / 0.28)",
             borderRadius: "0.375rem",
             padding: "0.85rem 1.75rem",
+            cursor: anyUploading ? "not-allowed" : undefined,
           }}
           data-ocid="btn-submit-listing"
         >

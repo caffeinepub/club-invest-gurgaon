@@ -90,6 +90,7 @@ export class ExternalBlob {
     }
 }
 export interface PropertySubmission {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: PropertyCategory;
     projectName: string;
@@ -139,6 +140,7 @@ export enum TargetBuyer {
 }
 export interface backendInterface {
     getSubmissions(): Promise<Array<PropertySubmission>>;
+    setGoogleSheetsUrl(url: string): Promise<void>;
     submitProperty(submission: PropertySubmission): Promise<string>;
 }
 import type { Furnishing as _Furnishing, PropertyCategory as _PropertyCategory, PropertySubmission as _PropertySubmission, Representation as _Representation, TargetBuyer as _TargetBuyer } from "./declarations/backend.did.d.ts";
@@ -156,6 +158,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getSubmissions();
             return from_candid_vec_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async setGoogleSheetsUrl(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setGoogleSheetsUrl(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setGoogleSheetsUrl(arg0);
+            return result;
         }
     }
     async submitProperty(arg0: PropertySubmission): Promise<string> {
@@ -189,6 +205,7 @@ function from_candid_TargetBuyer_n6(_uploadFile: (file: ExternalBlob) => Promise
     return from_candid_variant_n7(_uploadFile, _downloadFile, value);
 }
 function from_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: _PropertyCategory;
     projectName: string;
@@ -214,6 +231,7 @@ function from_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint
     representation: _Representation;
     negotiable: boolean;
 }): {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: PropertyCategory;
     projectName: string;
@@ -240,6 +258,7 @@ function from_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint
     negotiable: boolean;
 } {
     return {
+        photoUrls: value.photoUrls,
         locationAdvantages: value.locationAdvantages,
         propertyCategory: from_candid_PropertyCategory_n4(_uploadFile, _downloadFile, value.propertyCategory),
         projectName: value.projectName,
@@ -325,6 +344,7 @@ function to_candid_TargetBuyer_n16(_uploadFile: (file: ExternalBlob) => Promise<
     return to_candid_variant_n17(_uploadFile, _downloadFile, value);
 }
 function to_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: PropertyCategory;
     projectName: string;
@@ -350,6 +370,7 @@ function to_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     representation: Representation;
     negotiable: boolean;
 }): {
+    photoUrls: Array<string>;
     locationAdvantages: string;
     propertyCategory: _PropertyCategory;
     projectName: string;
@@ -376,6 +397,7 @@ function to_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     negotiable: boolean;
 } {
     return {
+        photoUrls: value.photoUrls,
         locationAdvantages: value.locationAdvantages,
         propertyCategory: to_candid_PropertyCategory_n14(_uploadFile, _downloadFile, value.propertyCategory),
         projectName: value.projectName,

@@ -54,6 +54,8 @@ module {
     // Unique Selling Points
     keyHighlights      : Text;
     uniqueFeatures     : Text;
+    // Photos (optional)
+    photoUrls          : [Text];
     // Authorization
     authorized         : Bool;
     submittedAt        : Int;

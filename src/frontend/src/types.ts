@@ -41,3 +41,13 @@ export interface PropertyFormData {
   // Section 7: Authorization
   authorized: boolean;
 }
+
+export interface UploadedPhoto {
+  id: string;
+  file: File;
+  previewUrl: string;
+  progress: number; // 0–100
+  status: "pending" | "uploading" | "done" | "error";
+  errorMsg?: string;
+  uploadedUrl?: string;
+}
