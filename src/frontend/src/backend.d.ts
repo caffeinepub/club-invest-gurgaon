@@ -60,4 +60,22 @@ export interface backendInterface {
     getSubmissions(): Promise<Array<PropertySubmission>>;
     setGoogleSheetsUrl(url: string): Promise<void>;
     submitProperty(submission: PropertySubmission): Promise<string>;
+    transform(raw: {
+        context: Uint8Array;
+        response: {
+            status: bigint;
+            body: Uint8Array;
+            headers: Array<{
+                value: string;
+                name: string;
+            }>;
+        };
+    }): Promise<{
+        status: bigint;
+        body: Uint8Array;
+        headers: Array<{
+            value: string;
+            name: string;
+        }>;
+    }>;
 }

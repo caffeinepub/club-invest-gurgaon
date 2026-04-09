@@ -16,6 +16,7 @@ import { useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
+  ExternalBlob,
   Furnishing,
   PropertyCategory,
   Representation,
@@ -574,39 +575,33 @@ export default function SubmissionForm() {
         submittedAt: BigInt(Date.now()),
       };
 
-      try {
-        const canisterId = import.meta.env.VITE_CANISTER_ID_BACKEND as
-          | string
-          | undefined;
-        if (canisterId) {
-          const noopUpload = async (_file: unknown) => new Uint8Array();
-          const noopDownload = async (_file: unknown) => ({
-            directURL: "",
-            _blob: null,
-            onProgress: undefined,
-            getBytes: async () => new Uint8Array(),
-            getDirectURL: () => "",
-            withUploadProgress: (fn: unknown) => ({
-              directURL: "",
-              getBytes: async () => new Uint8Array(),
-              getDirectURL: () => "",
-              withUploadProgress: fn,
-            }),
-          });
-          // @ts-expect-error noop stubs for unauthenticated anonymous actor
-          const backend = createActor(canisterId, noopUpload, noopDownload);
-          await backend.submitProperty(submission);
-        }
-      } catch {
-        // Backend not yet deployed — submission recorded locally
+      const canisterId = import.meta.env.VITE_CANISTER_ID_BACKEND as
+        | string
+        | undefined;
+      if (!canisterId) {
+        throw new Error(
+          "Backend canister not configured. Please try again later.",
+        );
       }
 
-      console.info("Property submission:", submission);
+      const noopUpload = async (_file: ExternalBlob) => new Uint8Array();
+      const noopDownload = async (_file: Uint8Array) =>
+        ExternalBlob.fromBytes(new Uint8Array());
+      const backend = createActor(canisterId, noopUpload, noopDownload, {
+        agentOptions: { host: window.location.origin },
+      });
+
+      await backend.submitProperty(submission);
+
       setSubmitted(true);
       toast.success("Listing submitted successfully");
     } catch (err) {
-      console.error(err);
-      toast.error("Submission failed. Please try again.");
+      console.error("Submission error:", err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Submission failed. Please check your connection and try again.";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

@@ -55,6 +55,23 @@ export interface _SERVICE {
   'getSubmissions' : ActorMethod<[], Array<PropertySubmission>>,
   'setGoogleSheetsUrl' : ActorMethod<[string], undefined>,
   'submitProperty' : ActorMethod<[PropertySubmission], string>,
+  'transform' : ActorMethod<
+    [
+      {
+        'context' : Uint8Array,
+        'response' : {
+          'status' : bigint,
+          'body' : Uint8Array,
+          'headers' : Array<{ 'value' : string, 'name' : string }>,
+        },
+      },
+    ],
+    {
+      'status' : bigint,
+      'body' : Uint8Array,
+      'headers' : Array<{ 'value' : string, 'name' : string }>,
+    }
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

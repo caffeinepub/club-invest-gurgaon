@@ -142,6 +142,24 @@ export interface backendInterface {
     getSubmissions(): Promise<Array<PropertySubmission>>;
     setGoogleSheetsUrl(url: string): Promise<void>;
     submitProperty(submission: PropertySubmission): Promise<string>;
+    transform(raw: {
+        context: Uint8Array;
+        response: {
+            status: bigint;
+            body: Uint8Array;
+            headers: Array<{
+                value: string;
+                name: string;
+            }>;
+        };
+    }): Promise<{
+        status: bigint;
+        body: Uint8Array;
+        headers: Array<{
+            value: string;
+            name: string;
+        }>;
+    }>;
 }
 import type { Furnishing as _Furnishing, PropertyCategory as _PropertyCategory, PropertySubmission as _PropertySubmission, Representation as _Representation, TargetBuyer as _TargetBuyer } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -185,6 +203,37 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitProperty(to_candid_PropertySubmission_n12(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
+    async transform(arg0: {
+        context: Uint8Array;
+        response: {
+            status: bigint;
+            body: Uint8Array;
+            headers: Array<{
+                value: string;
+                name: string;
+            }>;
+        };
+    }): Promise<{
+        status: bigint;
+        body: Uint8Array;
+        headers: Array<{
+            value: string;
+            name: string;
+        }>;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transform(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transform(arg0);
             return result;
         }
     }

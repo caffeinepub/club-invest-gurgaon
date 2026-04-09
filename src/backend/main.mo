@@ -1,9 +1,9 @@
 import Types "types/property-listings";
 import PropertyListingsMixin "mixins/property-listings-api";
-import Migration "migration";
+
 import List "mo:core/List";
 
-(with migration = Migration.run)
+
 actor {
   let submissions = List.empty<Types.PropertySubmission>();
   let submissionCounter = { var value : Nat = 0 };

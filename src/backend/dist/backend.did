@@ -56,4 +56,25 @@ service : {
   getSubmissions: () -> (vec PropertySubmission) query;
   setGoogleSheetsUrl: (url: text) -> ();
   submitProperty: (submission: PropertySubmission) -> (text);
+  transform: (raw:
+   record {
+     context: blob;
+     response:
+      record {
+        body: blob;
+        headers: vec record {
+                       name: text;
+                       value: text;
+                     };
+        status: nat;
+      };
+   }) ->
+   (record {
+      body: blob;
+      headers: vec record {
+                     name: text;
+                     value: text;
+                   };
+      status: nat;
+    }) query;
 }

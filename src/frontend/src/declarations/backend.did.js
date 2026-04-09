@@ -62,6 +62,30 @@ export const idlService = IDL.Service({
   'getSubmissions' : IDL.Func([], [IDL.Vec(PropertySubmission)], ['query']),
   'setGoogleSheetsUrl' : IDL.Func([IDL.Text], [], []),
   'submitProperty' : IDL.Func([PropertySubmission], [IDL.Text], []),
+  'transform' : IDL.Func(
+      [
+        IDL.Record({
+          'context' : IDL.Vec(IDL.Nat8),
+          'response' : IDL.Record({
+            'status' : IDL.Nat,
+            'body' : IDL.Vec(IDL.Nat8),
+            'headers' : IDL.Vec(
+              IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text })
+            ),
+          }),
+        }),
+      ],
+      [
+        IDL.Record({
+          'status' : IDL.Nat,
+          'body' : IDL.Vec(IDL.Nat8),
+          'headers' : IDL.Vec(
+            IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text })
+          ),
+        }),
+      ],
+      ['query'],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -121,6 +145,30 @@ export const idlFactory = ({ IDL }) => {
     'getSubmissions' : IDL.Func([], [IDL.Vec(PropertySubmission)], ['query']),
     'setGoogleSheetsUrl' : IDL.Func([IDL.Text], [], []),
     'submitProperty' : IDL.Func([PropertySubmission], [IDL.Text], []),
+    'transform' : IDL.Func(
+        [
+          IDL.Record({
+            'context' : IDL.Vec(IDL.Nat8),
+            'response' : IDL.Record({
+              'status' : IDL.Nat,
+              'body' : IDL.Vec(IDL.Nat8),
+              'headers' : IDL.Vec(
+                IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text })
+              ),
+            }),
+          }),
+        ],
+        [
+          IDL.Record({
+            'status' : IDL.Nat,
+            'body' : IDL.Vec(IDL.Nat8),
+            'headers' : IDL.Vec(
+              IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text })
+            ),
+          }),
+        ],
+        ['query'],
+      ),
   });
 };
 
